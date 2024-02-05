@@ -4,11 +4,11 @@ from .models import Word
 
 
 class WordSerializer(serializers.ModelSerializer):
-    preposition = serializers.SerializerMethodField()
+    article = serializers.SerializerMethodField()
 
     class Meta:
         model = Word
         exclude = ["created"]
 
-    def get_preposition(self, obj):
-        return obj.get_preposition_display()
+    def get_article(self, obj):
+        return obj.get_article_display()
