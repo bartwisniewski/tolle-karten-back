@@ -16,6 +16,12 @@ repos:
         require_serial: true
         args: ['--in-place', '--remove-all-unused-imports']
 
+-   repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+    -   id: isort
+        args: ["--profile", "black"]
+
 -   repo: https://github.com/psf/black
     rev: 24.1.1
     hooks:
