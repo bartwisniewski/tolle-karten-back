@@ -21,11 +21,14 @@ class StudentSerializer(serializers.ModelSerializer):
 
 
 class ResultSerializer(serializers.ModelSerializer):
-    word_word = serializers.CharField(source="word.word")
+    word_word = serializers.SerializerMethodField()
 
     class Meta:
         model = Result
         fields = "__all__"
+
+    def get_word_word(self, obj):
+        return f"{obj.word.get_article_display()} {obj.word.word}"
 
 
 class SetResultSerializer(serializers.Serializer):

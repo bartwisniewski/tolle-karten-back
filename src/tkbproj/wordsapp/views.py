@@ -17,7 +17,7 @@ from .serializers import (
 class WordList(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = WordSerializer
-    max_words = 2
+    max_words = 5
 
     def get_filtered_words(self):
         level = self.request.GET.get("level")
@@ -55,9 +55,10 @@ class WordList(ListAPIView):
 class ResultsList(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ResultSerializer
+    page_size = 10
 
     def get_queryset(self):
-        return Result.objects.filter(user=self.request.user)
+        return Result.objects.filter(user=self.request.user).order_by("-updated")
 
 
 class SetResults(APIView):

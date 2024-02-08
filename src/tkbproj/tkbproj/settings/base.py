@@ -148,7 +148,7 @@ REST_FRAMEWORK = {
 }
 
 # Django Cors Headers
-CORS_ALLOWED_ORIGINS = ["http://localhost:19000"]
+CORS_ALLOWED_ORIGINS = ["http://localhost:8081", "http://192.168.1.182:8081"]
 
 # Django Rest Auth
 REST_AUTH = {
