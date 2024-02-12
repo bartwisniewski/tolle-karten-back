@@ -98,6 +98,5 @@ class Result(models.Model):
             self.results += 1  # it means bit 0 will be set, so last result is OK
         if self.results > 255:
             self.results = self.results % 256
-        print(bin(self.results))
         self.calc_rate()
         self.save()

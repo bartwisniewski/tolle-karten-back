@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from .generator.generate_words import generate_words
 from .models import Result, Student, Word
 from .serializers import (
     ResultSerializer,
@@ -17,28 +18,28 @@ from .serializers import (
 class WordList(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = WordSerializer
-    max_words = 5
+    max_words = 10
 
     def get_filtered_words(self):
-        level = self.request.GET.get("level")
-        topic = self.request.GET.get("topic")
+        self.level = self.request.GET.get("level")
+        self.topic = self.request.GET.get("topic")
         words = Word.objects.all()
-        if level:
-            words = words.filter(level=level)
-        if topic:
-            words = words.filter(tags__icontains=topic)
+        if self.level:
+            words = words.filter(level=self.level)
+        if self.topic:
+            words = words.filter(tags__icontains=self.topic)
         return words
 
-    def get_new_words(self, words):
-        return words.filter(result__isnull=True).order_by("-created")[: self.max_words]
+    def get_new_words(self, words, results):
+        return words.exclude(result__in=results).order_by("-created")[: self.max_words]
 
-    def add_old_words(self, queryset, words):
+    def add_old_words(self, queryset, results):
         new_words_count = len(queryset)
         if new_words_count < WordList.max_words:
             max_old_words = WordList.max_words - new_words_count
-            results = Result.objects.filter(
-                Q(user=self.request.user) & Q(word__in=words)
-            ).order_by("rate", "updated")[:max_old_words]
+            results = results.filter(rate__lt=1.0).order_by("rate", "updated")[
+                :max_old_words
+            ]
             word_ids = [result.word.id for result in results]
             old_words = list(Word.objects.filter(id__in=word_ids))
             queryset = list(queryset) + old_words
@@ -46,9 +47,18 @@ class WordList(ListAPIView):
 
     def get_queryset(self):
         words = self.get_filtered_words()
-        words.prefetch_related("result")
-        queryset = self.get_new_words(words)
-        queryset = self.add_old_words(queryset, words)
+        results = Result.objects.filter(
+            Q(user=self.request.user) & Q(word__in=words)
+        ).order_by("rate", "updated")
+        queryset = self.get_new_words(words, results)
+        queryset = self.add_old_words(queryset, results)
+        if self.topic and self.level and len(queryset) < self.max_words:
+            generated = generate_words(
+                topic=self.topic,
+                level=self.level,
+                old_words=[word.word for word in words],
+            )
+            queryset = list(queryset) + generated
         return queryset
 
 
@@ -58,7 +68,9 @@ class ResultsList(ListAPIView):
     page_size = 10
 
     def get_queryset(self):
-        return Result.objects.filter(user=self.request.user).order_by("-updated")
+        return Result.objects.filter(user=self.request.user).order_by("-updated")[
+            : self.page_size
+        ]
 
 
 class SetResults(APIView):
