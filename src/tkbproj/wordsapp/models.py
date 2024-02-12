@@ -22,6 +22,8 @@ class Word(models.Model):
         DAS = "DAS", _("das")
 
     word = models.CharField(max_length=100)
+    polish = models.CharField(max_length=100, default="")
+    english = models.CharField(max_length=100, default="")
     article = models.CharField(
         max_length=3,
         choices=Articles,

@@ -18,7 +18,7 @@ from .serializers import (
 class WordList(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = WordSerializer
-    max_words = 10
+    max_words = 5
 
     def get_filtered_words(self):
         self.level = self.request.GET.get("level")
@@ -57,6 +57,7 @@ class WordList(ListAPIView):
                 topic=self.topic,
                 level=self.level,
                 old_words=[word.word for word in words],
+                count=5,
             )
             queryset = list(queryset) + generated
         return queryset
