@@ -43,6 +43,7 @@ def generate_words(topic, level, old_words, count):
         )
         word.image.save(image_name, File(open(image[0], "rb")), save=True)
         generated.append(word)
+        print("generating done")
     return generated
 
 
