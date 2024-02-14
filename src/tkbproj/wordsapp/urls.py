@@ -7,4 +7,5 @@ urlpatterns = [
     path("results/", views.ResultsList.as_view()),
     path("set-results/", views.SetResults.as_view()),
     path("student/", views.StudentGetUpdate.as_view()),
+    path("check-task/<str:job_id>/", views.Check.as_view(), name="check-task"),
 ]

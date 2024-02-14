@@ -7,25 +7,50 @@ services:
       dockerfile: ./src/deployment/local/Dockerfile
     container_name: "tolle-karten-app"
     volumes:
-      - app-data:/app/
-      - static:/app/static
-      - media:/app/media/
+      - app:/app
     ports:
       - "8000:8000"
     environment:
-      - DEBUG=True
-      - DJANGO_SETTINGS_MODULE=tkbproj.settings.development
+      - DJANGO_SETTINGS_MODULE=tkbproj.settings.local
       - DB_ENGINE=django.db.backends.postgresql_psycopg2
       - DB_HOST=tolle-karten-db
       - DB_DB=postgres
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - DB_PORT=5432
+      - CELERY_BROKER_URL=redis://redis:6379
+      - CELERY_RESULT_BACKEND=redis://redis:6379
     depends_on:
+        worker:
+          condition: service_started
         redis:
           condition: service_started
         db:
-          condition: service_started
+          condition: service_healthy
+  worker:
+    build:
+      context: ../../../
+      dockerfile: ./src/deployment/local/Dockerfile
+    container_name: "tolle-karten-worker"
+    volumes:
+      - app:/app
+    environment:
+      - DJANGO_SETTINGS_MODULE=tkbproj.settings.local
+      - DB_ENGINE=django.db.backends.postgresql_psycopg2
+      - DB_HOST=tolle-karten-db
+      - DB_DB=postgres
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_PORT=5432
+      - CELERY_BROKER_URL=redis://redis:6379
+      - CELERY_RESULT_BACKEND=redis://redis:6379
+    command: ['celery', '-A', 'tkbproj.celery', 'worker', '-l', 'info']
+    depends_on:
+      redis:
+        condition: service_started
+      db:
+        condition: service_healthy
+
   redis:
     image: "redis:latest"
     container_name: "tolle-karten-redis"
@@ -51,8 +76,6 @@ services:
       - "5432:5432"
 
 volumes:
-  app-data:
-  static:
-  media:
+  app:
   redis-data:
   db-data:

@@ -1,3 +1,4 @@
+from celery.result import AsyncResult, states
 from django.db.models import Q
 from rest_framework import status
 from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView
@@ -5,7 +6,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .generator.generate_words import generate_words
 from .models import Result, Student, Word
 from .serializers import (
     ResultSerializer,
@@ -13,12 +13,19 @@ from .serializers import (
     StudentSerializer,
     WordSerializer,
 )
+from .tasks import generate_words_task
 
 
 class WordList(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = WordSerializer
     max_words = 5
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.level = None
+        self.topic = None
+        self.task = None
 
     def get_filtered_words(self):
         self.level = self.request.GET.get("level")
@@ -33,7 +40,8 @@ class WordList(ListAPIView):
     def get_new_words(self, words, results):
         return words.exclude(result__in=results).order_by("-created")[: self.max_words]
 
-    def add_old_words(self, queryset, results):
+    @staticmethod
+    def add_old_words(queryset, results):
         new_words_count = len(queryset)
         if new_words_count < WordList.max_words:
             max_old_words = WordList.max_words - new_words_count
@@ -53,14 +61,19 @@ class WordList(ListAPIView):
         queryset = self.get_new_words(words, results)
         queryset = self.add_old_words(queryset, results)
         if self.topic and self.level and len(queryset) < self.max_words:
-            generated = generate_words(
+            self.task = generate_words_task.delay(
                 topic=self.topic,
                 level=self.level,
                 old_words=[word.word for word in words],
                 count=5,
             )
-            queryset = list(queryset) + generated
+            print(self.task)
         return queryset
+
+    def get(self, request, *args, **kwargs):
+        response = self.list(request, *args, **kwargs)
+        response.data = {"words": response.data, "task": self.task}
+        return response
 
 
 class ResultsList(ListAPIView):
@@ -105,3 +118,17 @@ class StudentGetUpdate(RetrieveUpdateAPIView):
 
     def get_object(self):
         return Student.objects.filter(user=self.request.user).first()
+
+
+def get_state(result: AsyncResult) -> any:
+    try:
+        return result.status
+    except ValueError:
+        return states.FAILURE
+
+
+class Check(APIView):
+    def get(self, request, job_id, format=None):
+        result = AsyncResult(id=job_id)
+        status = get_state(result)
+        return Response(data={"job": job_id, "status": status}, status=200)

@@ -14,6 +14,11 @@ class WordSerializer(serializers.ModelSerializer):
         return obj.get_article_display()
 
 
+class WordListSerializer(serializers.Serializer):
+    words = WordSerializer(many=True)
+    task = serializers.CharField()
+
+
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student

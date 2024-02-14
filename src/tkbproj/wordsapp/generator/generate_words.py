@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.files import File
 
 from ..models import Word
+from ..serializers import WordSerializer
 from .prompt_get_words import get_image, get_words
 
 ARTICLES = ["DER", "DIE", "DAS"]
@@ -43,8 +44,9 @@ def generate_words(topic, level, old_words, count):
         )
         word.image.save(image_name, File(open(image[0], "rb")), save=True)
         generated.append(word)
-        print("generating done")
-    return generated
+    print("generating done")
+    serializer = WordSerializer(generated, many=True)
+    return serializer.data
 
 
 if __name__ == "__main__":
