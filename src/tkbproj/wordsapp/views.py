@@ -67,12 +67,12 @@ class WordList(ListAPIView):
                 old_words=[word.word for word in words],
                 count=5,
             )
-            print(self.task)
+            print(self.task.id)
         return queryset
 
     def get(self, request, *args, **kwargs):
         response = self.list(request, *args, **kwargs)
-        response.data = {"words": response.data, "task": self.task}
+        response.data = {"words": response.data, "task": self.task.id}
         return response
 
 
