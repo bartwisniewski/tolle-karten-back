@@ -141,8 +141,8 @@ sent_emails/
 !.elasticbeanstalk/*.global.yml
 # /.pre-commit-config.yaml
 
-# test attachments
-attachments/
+# static files
+static
 
 # media files
 media

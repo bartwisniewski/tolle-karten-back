@@ -1,3 +1,4 @@
+from celery.result import AsyncResult, states
 from django.contrib.auth import get_user_model
 from django.contrib.auth.signals import user_logged_in
 from django.db import models
@@ -102,3 +103,36 @@ class Result(models.Model):
             self.results = self.results % 256
         self.calc_rate()
         self.save()
+
+
+class GeneratorTask(models.Model):
+    FINISHED_STATES = [states.FAILURE, states.SUCCESS]
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    level = models.CharField(
+        max_length=2,
+        choices=LEVELS,
+        default="A1",
+    )
+    topic = models.CharField(max_length=30, default="podstawy")
+    job_id = models.CharField(max_length=100)
+    status = models.CharField(max_length=10, default=states.PENDING)
+
+    def check_state(self) -> any:
+        result = AsyncResult(id=self.job_id)
+        try:
+            self.status = result.status
+        except ValueError:
+            self.status = states.FAILURE
+        self.save()
+        return self.status
+
+    @staticmethod
+    def check_similiar_task_runs(topic, level):
+        tasks = GeneratorTask.objects.filter(
+            models.Q(topic__contains=topic) | models.Q(level=level)
+        ).exclude(status__in=GeneratorTask.FINISHED_STATES)
+        for task in tasks:
+            state = task.check_state()
+            if state not in GeneratorTask.FINISHED_STATES:
+                return True
+        return False

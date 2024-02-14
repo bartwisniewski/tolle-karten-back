@@ -1,13 +1,14 @@
 from celery.result import AsyncResult, states
 from django.db.models import Q
 from rest_framework import status
-from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Result, Student, Word
+from .models import GeneratorTask, Result, Student, Word
 from .serializers import (
+    GeneratorTaskSerializer,
     ResultSerializer,
     SetResultSerializer,
     StudentSerializer,
@@ -60,19 +61,32 @@ class WordList(ListAPIView):
         ).order_by("rate", "updated")
         queryset = self.get_new_words(words, results)
         queryset = self.add_old_words(queryset, results)
-        if self.topic and self.level and len(queryset) < self.max_words:
-            self.task = generate_words_task.delay(
+        if (
+            self.topic
+            and self.level
+            and len(queryset) < self.max_words
+            and not GeneratorTask.check_similiar_task_runs(
+                topic=self.topic, level=self.level
+            )
+        ):
+            celery_task = generate_words_task.delay(
                 topic=self.topic,
                 level=self.level,
                 old_words=[word.word for word in words],
                 count=5,
             )
-            print(self.task.id)
+            self.task = GeneratorTask.objects.create(
+                user=self.request.user,
+                level=self.level,
+                topic=self.topic,
+                job_id=celery_task.id,
+            )
         return queryset
 
     def get(self, request, *args, **kwargs):
         response = self.list(request, *args, **kwargs)
-        response.data = {"words": response.data, "task": self.task.id}
+        task_id = self.task.id if self.task else None
+        response.data = {"words": response.data, "task": task_id}
         return response
 
 
@@ -127,8 +141,29 @@ def get_state(result: AsyncResult) -> any:
         return states.FAILURE
 
 
-class Check(APIView):
-    def get(self, request, job_id, format=None):
-        result = AsyncResult(id=job_id)
-        status = get_state(result)
-        return Response(data={"job": job_id, "status": status}, status=200)
+class GeneratorTaskGet(RetrieveAPIView):
+    queryset = GeneratorTask.objects.all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = GeneratorTaskSerializer
+
+    def get_object(self):
+        obj = super().get_object()
+        obj.check_state()
+        return obj
+
+
+class GeneratorTaskUserList(ListAPIView):
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = GeneratorTaskSerializer
+
+    def get_queryset(self):
+        queryset = GeneratorTask.objects.filter(user=self.request.user).exclude(
+            status__in=GeneratorTask.FINISHED_STATES
+        )
+        users_active_tasks = list(queryset)
+        for task in users_active_tasks:
+            state = task.check_state()
+            if state in GeneratorTask.FINISHED_STATES:
+                users_active_tasks.remove(task)
+        return users_active_tasks

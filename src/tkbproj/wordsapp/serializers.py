@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Result, Student, Word
+from .models import GeneratorTask, Result, Student, Word
 
 
 class WordSerializer(serializers.ModelSerializer):
@@ -39,3 +39,9 @@ class ResultSerializer(serializers.ModelSerializer):
 class SetResultSerializer(serializers.Serializer):
     word = serializers.IntegerField(required=True)
     result = serializers.BooleanField(required=True)
+
+
+class GeneratorTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GeneratorTask
+        fields = "__all__"

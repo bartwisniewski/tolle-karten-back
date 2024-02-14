@@ -7,7 +7,7 @@ services:
       dockerfile: ./src/deployment/local/Dockerfile
     container_name: "tolle-karten-app"
     volumes:
-      - app:/app
+      - ../../tkbproj/:/app
     ports:
       - "8000:8000"
     environment:
@@ -33,7 +33,7 @@ services:
       dockerfile: ./src/deployment/local/Dockerfile
     container_name: "tolle-karten-worker"
     volumes:
-      - app:/app
+      - ../../tkbproj/:/app
     environment:
       - DJANGO_SETTINGS_MODULE=tkbproj.settings.local
       - DB_ENGINE=django.db.backends.postgresql_psycopg2
@@ -76,6 +76,5 @@ services:
       - "5432:5432"
 
 volumes:
-  app:
   redis-data:
   db-data:
