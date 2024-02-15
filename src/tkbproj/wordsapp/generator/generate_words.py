@@ -32,8 +32,9 @@ def generate_words(topic, level, old_words, count):
         if not img_url:
             continue
         image_name = urlparse(img_url).path.split("/")[-1]
-        path = os.path.join(settings.MEDIA_ROOT, image_name)
-        image = urlretrieve(url=img_url, filename=path)
+        temp_path = os.path.join(settings.MEDIA_ROOT, "tmp/")
+        temp_path = temp_path + str(image_name)
+        image = urlretrieve(url=img_url, filename=temp_path)
         word = Word(
             word=word.get("word"),
             article=word.get("article"),
@@ -44,6 +45,8 @@ def generate_words(topic, level, old_words, count):
         )
         word.image.save(image_name, File(open(image[0], "rb")), save=True)
         generated.append(word)
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
     print("generating done")
     serializer = WordSerializer(generated, many=True)
     return serializer.data

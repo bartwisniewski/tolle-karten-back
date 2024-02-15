@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import GeneratorTask, Result, Student, Word
+from .models import LEVELS_ORDER, GeneratorTask, Result, Student, Word
 from .serializers import (
     GeneratorTaskSerializer,
     ResultSerializer,
@@ -32,8 +32,12 @@ class WordList(ListAPIView):
         self.level = self.request.GET.get("level")
         self.topic = self.request.GET.get("topic")
         words = Word.objects.all()
-        if self.level:
-            words = words.filter(level=self.level)
+        if self.level and self.level in LEVELS_ORDER:
+            level_index = LEVELS_ORDER.index(self.level)
+            available_levels = LEVELS_ORDER[: level_index + 1]
+            words = words.filter(
+                level__in=available_levels
+            )  # words from lower level are enabled
         if self.topic:
             words = words.filter(tags__icontains=self.topic)
         return words
@@ -65,9 +69,7 @@ class WordList(ListAPIView):
             self.topic
             and self.level
             and len(queryset) < self.max_words
-            and not GeneratorTask.check_similiar_task_runs(
-                topic=self.topic, level=self.level
-            )
+            and not GeneratorTask.check_similiar_task_runs(topic=self.topic)
         ):
             celery_task = generate_words_task.delay(
                 topic=self.topic,

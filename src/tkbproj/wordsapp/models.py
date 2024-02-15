@@ -15,6 +15,8 @@ LEVELS = {
     "C2": "C2",
 }
 
+LEVELS_ORDER = ["A1", "A2", "B1", "B2", "C1", "C2"]
+
 
 class Word(models.Model):
     class Articles(models.TextChoices):
@@ -127,10 +129,10 @@ class GeneratorTask(models.Model):
         return self.status
 
     @staticmethod
-    def check_similiar_task_runs(topic, level):
-        tasks = GeneratorTask.objects.filter(
-            models.Q(topic__contains=topic) | models.Q(level=level)
-        ).exclude(status__in=GeneratorTask.FINISHED_STATES)
+    def check_similiar_task_runs(topic):
+        tasks = GeneratorTask.objects.filter(topic__contains=topic).exclude(
+            status__in=GeneratorTask.FINISHED_STATES
+        )
         for task in tasks:
             state = task.check_state()
             if state not in GeneratorTask.FINISHED_STATES:

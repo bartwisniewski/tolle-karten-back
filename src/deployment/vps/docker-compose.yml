@@ -7,11 +7,13 @@ services:
       dockerfile: ./src/deployment/local/Dockerfile
     container_name: "tolle-karten-app"
     volumes:
-      - ../../tkbproj/:/app
+      - static_volume:/app/static
+      - media_volume:/app/media
     expose:
       - 8000
     environment:
-      - DJANGO_SETTINGS_MODULE=tkbproj.settings.local
+      - DJANGO_SETTINGS_MODULE=tkbproj.settings.vps
+      - HOST_NAME=http://127.0.0.1:8001
       - DB_ENGINE=django.db.backends.postgresql_psycopg2
       - DB_HOST=tolle-karten-db
       - DB_DB=postgres
@@ -36,9 +38,11 @@ services:
       dockerfile: ./src/deployment/local/Dockerfile
     container_name: "tolle-karten-worker"
     volumes:
-      - ../../tkbproj/:/app
+      - static_volume:/app/static
+      - media_volume:/app/media
     environment:
-      - DJANGO_SETTINGS_MODULE=tkbproj.settings.local
+      - DJANGO_SETTINGS_MODULE=tkbproj.settings.vps
+      - HOST_NAME=http://127.0.0.1:8001
       - DB_ENGINE=django.db.backends.postgresql_psycopg2
       - DB_HOST=tolle-karten-db
       - DB_DB=postgres
@@ -55,6 +59,7 @@ services:
         condition: service_healthy
     networks:
       - network_back
+      - network_front
 
   redis:
     image: "redis:latest"
@@ -80,10 +85,10 @@ services:
       retries: 3
     volumes:
       - db-data:/var/lib/postgresql/data/:Z
-    networks:
-      - network_back
     expose:
       - 5432
+    networks:
+      - network_back
 
   nginx:
     build:
@@ -93,6 +98,9 @@ services:
     environment:
       - HOST_NAME=tolle-karten-app
       - PORT=8000
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
     ports:
       - 8001:80
     networks:
@@ -105,6 +113,8 @@ services:
 volumes:
   redis-data:
   db-data:
+  static_volume:
+  media_volume:
 
 networks:
   network_front:
