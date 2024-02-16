@@ -17,7 +17,7 @@ services:
       - ADMIN_USER=${ADMIN_USER}
       - ADMIN_EMAIL=${ADMIN_EMAIL}
       - ADMIN_PASS=${ADMIN_PASS}
-      - HOST_NAME=http://srv24.mikr.us:20352
+      - HOST_NAME=${HOST_NAME}
       - DB_ENGINE=django.db.backends.postgresql_psycopg2
       - DB_HOST=tolle-karten-db
       - DB_DB=postgres
@@ -47,7 +47,7 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=tkbproj.settings.vps
       - SECRET_KEY=${SECRET_KEY}
-      - HOST_NAME=http://srv24.mikr.us:20352
+      - HOST_NAME=${HOST_NAME}
       - DB_ENGINE=django.db.backends.postgresql_psycopg2
       - DB_HOST=tolle-karten-db
       - DB_DB=postgres

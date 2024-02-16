@@ -20,3 +20,4 @@ docker context create <context-name> --docker "host=ssh://<user>@<server>:<port>
 run:
 docker-compose up --build -d // locally
 docker-compose ‐‐context <context-name> up --build -d // remotely
+docker-compose --context mikrus up --build -d // remotely on mikrus

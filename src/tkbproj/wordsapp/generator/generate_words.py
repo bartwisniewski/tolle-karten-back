@@ -14,9 +14,27 @@ ARTICLES = ["DER", "DIE", "DAS"]
 
 def validate_word(word):
     german = word.get("word")
-    if german.upper()[0:4] in ["DER ", "DIE ", "DAS "]:
-        print(f"gottcha {german}")
+    english = word.get("english")
+    polish = word.get("polish")
+    article = word.get("article", "")
+    if (
+        not german
+        or not english
+        or not polish
+        or (german == english)
+        or (german == polish)
+        or (english == polish)
+    ):
+        return None
+
+    if german.upper()[0:3] in ARTICLES:
+        temp_article = german[0:3]
         word["word"] = german[4:]
+        if article == "":
+            article = word["article"] = temp_article.upper()
+
+    if not (article in ARTICLES or article == ""):
+        return None
     return word
 
 
@@ -26,25 +44,30 @@ def generate_words(topic, level, old_words, count):
     generated = []
     for word in words:
         word = validate_word(word)
-        if Word.objects.filter(word=word.get("word")).count() > 0:
+        if not word or Word.objects.filter(word=word.get("word")).count() > 0:
             continue
-        img_url = get_image(word=word.get("english"))
+        word_obj = Word(
+            word=word.get("word"),
+            article=word.get("article", ""),
+            level=level,
+            tags=word.get("tags"),
+            english=word.get("english"),
+            polish=word.get("polish"),
+        )
+
+        img_url = get_image(word=word_obj.english)
         if not img_url:
             continue
         image_name = urlparse(img_url).path.split("/")[-1]
         temp_path = os.path.join(settings.MEDIA_ROOT, "tmp/")
         temp_path = temp_path + str(image_name)
         image = urlretrieve(url=img_url, filename=temp_path)
-        word = Word(
-            word=word.get("word"),
-            article=word.get("article"),
-            level=level,
-            tags=word.get("tags"),
-            english=word.get("english"),
-            polish=word.get("polish"),
+
+        file_extension = os.path.splitext(temp_path)[1]
+        word_obj.image.save(
+            word_obj.word + file_extension, File(open(image[0], "rb")), save=True
         )
-        word.image.save(image_name, File(open(image[0], "rb")), save=True)
-        generated.append(word)
+        generated.append(word_obj)
         if os.path.exists(temp_path):
             os.remove(temp_path)
     print("generating done")
