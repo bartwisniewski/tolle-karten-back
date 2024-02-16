@@ -12,11 +12,12 @@ from .prompt_get_words import get_image, get_words
 ARTICLES = ["DER", "DIE", "DAS"]
 
 
-def validate_word(word):
+def validate_word(word, topic):
     german = word.get("word")
     english = word.get("english")
     polish = word.get("polish")
     article = word.get("article", "")
+    tags = word.get("tags")
     if (
         not german
         or not english
@@ -35,6 +36,13 @@ def validate_word(word):
 
     if not (article in ARTICLES or article == ""):
         return None
+
+    existing = Word.objects.filter(word=word.get("word")).first()
+    if existing:
+        if tags:
+            existing.tags += ", " + tags
+            existing.save()
+        return None
     return word
 
 
@@ -43,9 +51,10 @@ def generate_words(topic, level, old_words, count):
     words = get_words(topic, level, old_words, count)
     generated = []
     for word in words:
-        word = validate_word(word)
-        if not word or Word.objects.filter(word=word.get("word")).count() > 0:
+        word = validate_word(word, topic)
+        if not word:
             continue
+
         word_obj = Word(
             word=word.get("word"),
             article=word.get("article", ""),
