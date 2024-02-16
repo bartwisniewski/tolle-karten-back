@@ -20,4 +20,6 @@ COPY ./README.md /app/
 RUN sed -i 's/\r$//' /scripts/run.sh && \
     chmod -R +x /scripts
 
+ENV PATH="/scripts::$PATH"
+
 CMD ["run.sh"]

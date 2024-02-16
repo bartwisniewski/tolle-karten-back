@@ -2,7 +2,9 @@ import os
 
 from .base import *  # noqa
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+SECRET_KEY = os.environ["SECRET_KEY"]
+DEBUG = False
+ALLOWED_HOSTS = ["*"]
 
 DATABASES = {
     "default": {

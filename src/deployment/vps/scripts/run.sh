@@ -4,7 +4,6 @@ set -e
 
 python manage.py makemigrations
 python manage.py migrate
+python manage.py initadmin
 python manage.py collectstatic --noinput
-gunicorn hello_django.wsgi:application --bind 0.0.0.0:8000
-
-python -m celery -A tkbproj worker
+gunicorn tkbproj.wsgi:application --bind 0.0.0.0:8000

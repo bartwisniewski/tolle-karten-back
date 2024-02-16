@@ -3,9 +3,7 @@ import os
 from .base import *  # noqa
 
 SECRET_KEY = os.environ["SECRET_KEY"]
-
 DEBUG = False
-
 ALLOWED_HOSTS = os.environ["HOST_NAME"]
 
 DATABASES = {

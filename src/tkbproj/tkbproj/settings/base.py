@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -21,6 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-9_xtk3n)#%vuh6t3+n$#ycwt^vakb__t31i-y_doza0i)l^v&k"
+
+ADMIN_USER = os.environ.get("ADMIN_USER", "admin")
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "admin@admin.com")
+ADMIN_PASS = os.environ.get("ADMIN_PASS", "pass")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -41,6 +46,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "usersapp.apps.UsersappConfig",
     "wordsapp.apps.WordsappConfig",
+    "homeapp.apps.HomeappConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

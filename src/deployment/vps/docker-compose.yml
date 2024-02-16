@@ -4,7 +4,7 @@ services:
   app:
     build:
       context: ../../../
-      dockerfile: ./src/deployment/local/Dockerfile
+      dockerfile: ./src/deployment/vps/Dockerfile
     container_name: "tolle-karten-app"
     volumes:
       - static_volume:/app/static
@@ -13,7 +13,11 @@ services:
       - 8000
     environment:
       - DJANGO_SETTINGS_MODULE=tkbproj.settings.vps
-      - HOST_NAME=http://127.0.0.1:8001
+      - SECRET_KEY=${SECRET_KEY}
+      - ADMIN_USER=${ADMIN_USER}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_PASS=${ADMIN_PASS}
+      - HOST_NAME=http://srv24.mikr.us:20352
       - DB_ENGINE=django.db.backends.postgresql_psycopg2
       - DB_HOST=tolle-karten-db
       - DB_DB=postgres
@@ -42,7 +46,8 @@ services:
       - media_volume:/app/media
     environment:
       - DJANGO_SETTINGS_MODULE=tkbproj.settings.vps
-      - HOST_NAME=http://127.0.0.1:8001
+      - SECRET_KEY=${SECRET_KEY}
+      - HOST_NAME=http://srv24.mikr.us:20352
       - DB_ENGINE=django.db.backends.postgresql_psycopg2
       - DB_HOST=tolle-karten-db
       - DB_DB=postgres
@@ -51,7 +56,7 @@ services:
       - DB_PORT=5432
       - CELERY_BROKER_URL=redis://redis:6379
       - CELERY_RESULT_BACKEND=redis://redis:6379
-    command: ['celery', '-A', 'tkbproj.celery', 'worker', '-l', 'info']
+    command: ['celery', '-A', 'tkbproj.celery', 'worker', '-l', 'info', '--concurrency', '2']
     depends_on:
       redis:
         condition: service_started
@@ -92,7 +97,7 @@ services:
 
   nginx:
     build:
-      context: ../nginx/local
+      context: ../nginx/vps
       dockerfile: Dockerfile
     container_name: "tolle-karten-nginx"
     environment:
@@ -102,10 +107,12 @@ services:
       - static_volume:/home/app/web/staticfiles
       - media_volume:/home/app/web/mediafiles
     ports:
-      - 8001:80
+      - "20352:80"
+      - "[::]:80:80"
     networks:
       - network_front
       - network_back
+      - ip6net
     depends_on:
       app:
         condition: service_started
@@ -124,3 +131,9 @@ networks:
     driver: bridge
     internal: true
     name: tolle-karten-back
+  ip6net:
+    enable_ipv6: true
+    name: tolle-karten-ip6
+    ipam:
+      config:
+        - subnet: "fd12:3456:789a:1::/64"
