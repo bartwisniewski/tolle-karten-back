@@ -161,6 +161,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8081",
     "http://localhost:8001",
     "http://192.168.1.182:8081",
+    "http://localhost:3000",
 ]
 
 # Django Rest Auth

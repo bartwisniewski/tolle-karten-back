@@ -92,8 +92,8 @@ services:
 
   nginx:
     build:
-      context: ../nginx/local
-      dockerfile: Dockerfile
+      context: ../../
+      dockerfile: ./deployment/nginx/local/Dockerfile
     container_name: "tolle-karten-nginx"
     environment:
       - HOST_NAME=tolle-karten-app
