@@ -98,7 +98,7 @@ services:
   nginx:
     build:
       context: ../../
-      dockerfile: ./deployment/nginx/local/Dockerfile
+      dockerfile: ./deployment/nginx/vps/Dockerfile
     container_name: "tolle-karten-nginx"
     environment:
       - HOST_NAME=tolle-karten-app
@@ -110,9 +110,8 @@ services:
       - "20352:80"
       - "[::]:80:80"
     networks:
-      - network_front
-      - network_back
       - ip6net
+      - network_back
     depends_on:
       app:
         condition: service_started
@@ -136,4 +135,4 @@ networks:
     name: tolle-karten-ip6
     ipam:
       config:
-        - subnet: "fd12:3456:789a:1::/64"
+        - subnet: "fd4a:5a20:acde:cafe::/64"
