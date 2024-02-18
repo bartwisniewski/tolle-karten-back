@@ -20,5 +20,7 @@ def generate_image(prompt, size):
 
 
 if __name__ == "__main__":
-    response = generate_image("colour cartoon graphic of a car", size="1024x1024")
+    response = generate_image(
+        "fav icon for a german words learning website", size="1024x1024"
+    )
     print(response)
