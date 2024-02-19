@@ -25,6 +25,7 @@ urlpatterns = [
     path("api/dj-rest-auth/", include("dj_rest_auth.urls")),
     path("api/", include("usersapp.urls")),
     path("api/dj-rest-auth/registration/", include("dj_rest_auth.registration.urls")),
+    path("api/allauth/", include("allauth.urls")),
     path("api/words/", include("wordsapp.urls")),
     path("api/", include("homeapp.urls")),
 ]
