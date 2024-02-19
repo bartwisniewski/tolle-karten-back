@@ -26,6 +26,9 @@ services:
       - DB_PORT=5432
       - CELERY_BROKER_URL=redis://redis:6379
       - CELERY_RESULT_BACKEND=redis://redis:6379
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
     depends_on:
         worker:
           condition: service_started
@@ -35,6 +38,7 @@ services:
           condition: service_healthy
     networks:
       - network_back
+      - network_front
 
   worker:
     build:
@@ -105,7 +109,8 @@ services:
     container_name: "tolle-karten-nginx"
     environment:
       - HOST_NAME=tolle-karten-app
-      - PORT=8000
+      - APP_PORT=8000
+      - FRONT_PORT=80
     volumes:
       - static_volume:/home/app/web/staticfiles
       - media_volume:/home/app/web/mediafiles

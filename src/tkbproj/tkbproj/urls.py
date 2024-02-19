@@ -23,6 +23,7 @@ from django.urls import include, path
 urlpatterns = [
     path("api/admin/", admin.site.urls),
     path("api/dj-rest-auth/", include("dj_rest_auth.urls")),
+    path("api/", include("usersapp.urls")),
     path("api/dj-rest-auth/registration/", include("dj_rest_auth.registration.urls")),
     path("api/words/", include("wordsapp.urls")),
     path("api/", include("homeapp.urls")),

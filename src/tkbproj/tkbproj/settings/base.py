@@ -39,10 +39,6 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "dj_rest_auth",
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
-    "dj_rest_auth.registration",
     "corsheaders",
     "usersapp.apps.UsersappConfig",
     "wordsapp.apps.WordsappConfig",
@@ -54,6 +50,10 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "dj_rest_auth.registration",
 ]
 
 MIDDLEWARE = [
@@ -73,7 +73,7 @@ ROOT_URLCONF = "tkbproj.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -173,3 +173,5 @@ REST_AUTH = {
 }
 
 SITE_ID = 1
+
+# Django Allauth

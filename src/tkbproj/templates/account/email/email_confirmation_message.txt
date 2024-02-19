@@ -1,0 +1,5 @@
+{% extends "account/email/base_message.txt" %}
+{% load account %}{% load i18n %}{% block content %}{% autoescape off %}{% user_display user as user_display %}{% blocktrans with site_name=current_site.name site_domain=current_site.domain %}
+Otrzymałeś tą wiadomość ponieważ użytkownik: {{ user_display }} podał ten adres aby zarejestrować się w aplikacji: {{ site_domain }}.
+
+Aby potwierdzić rejestrację przejdź do: {{ activate_url }}{% endblocktrans %}{% endautoescape %}{% endblock content %}
