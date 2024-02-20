@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html style="height: 100%;">
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,27 +9,21 @@
     {% block extra_head %}
     {% endblock extra_head %}
   </head>
-  <body>
+  <body class="is-flex is-flex-direction-column is-align-items-stretch" style="height: 100%;">
     {% block body %}
-    {% if messages %}
-    <div>
-      <ul>
-        {% for message in messages %}
-        <li>{{message}}</li>
-        {% endfor %}
-      </ul>
-    </div>
-    {% endif %}
-    <div>
-        <a href="/">Wróć do aplikacji</a>
-    </div>
-    <section class="section">
-      <div class="container">
-        {% block content %}
-        {% endblock content %}
+      <div class="level has-background-primary">
+        <div class="level-item has-text-centered">
+          <div class="m-3">
+            <a class="has-text-white is-size-6" href="/">Tolle karten</a>
+          </div>
+        </div>
       </div>
-    </section>
-
+      <section class="section is-flex-grow-1 is-flex is-flex-direction-column is-justify-content-center is-align-items-center">
+        <div class="container is-flex-grow-0 mb-6 p-6 box ">
+          {% block content %}
+          {% endblock content %}
+        </div>
+      </section>
     {% endblock body %}
     {% block extra_body %}
     {% endblock extra_body %}

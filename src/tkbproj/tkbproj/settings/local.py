@@ -18,12 +18,6 @@ CELERY_RESULT_BACKEND = os.environ["CELERY_RESULT_BACKEND"]
 
 MEDIA_URL = "http://127.0.0.1:8001/media/"
 
-# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = os.environ["EMAIL_HOST"]
-EMAIL_PORT = 465
-EMAIL_USE_SSL = True
-EMAIL_HOST_USER = os.environ["EMAIL_HOST_USER"]
-EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 USE_X_FORWARDED_HOST = True

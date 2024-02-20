@@ -9,8 +9,13 @@ urlpatterns = [
         name="account_confirm_email",
     ),
     path(
+        "password-reset/",
+        views.ResetPasswordView.as_view(),
+        name="password_reset",
+    ),
+    path(
         "password-reset-confirm/<uidb36>/<key>/",
-        views.PasswordResetView.as_view(),
+        views.ResetPasswordFromKeyView.as_view(),
         name="password_reset_confirm",
     ),
 ]
