@@ -1,7 +1,5 @@
-{% load i18n %}{% autoescape off %}{% blocktrans with site_name=current_site.name %}Witaj w aplikacji {{ site_name }}!{% endblocktrans %}
-
+{% autoescape off %}{% blocktrans with site_name=current_site.name %}Witaj w aplikacji {{ site_name }}!{% endblocktrans %}
 {% block content %}{% endblock content %}
-
 {% blocktrans with site_name=current_site.name site_domain=current_site.domain %}Dziękuję za korzystanie z {{ site_name }}!
 {{ site_domain }}{% endblocktrans %}
 {% endautoescape %}

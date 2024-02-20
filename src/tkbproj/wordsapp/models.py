@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from celery.result import AsyncResult, states
 from django.contrib.auth import get_user_model
 from django.contrib.auth.signals import user_logged_in
@@ -109,6 +111,7 @@ class Result(models.Model):
 
 class GeneratorTask(models.Model):
     FINISHED_STATES = [states.FAILURE, states.SUCCESS]
+    LIMIT = 5
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     level = models.CharField(
         max_length=2,
@@ -118,6 +121,7 @@ class GeneratorTask(models.Model):
     topic = models.CharField(max_length=30, default="podstawy")
     job_id = models.CharField(max_length=100)
     status = models.CharField(max_length=10, default=states.PENDING)
+    created = models.DateTimeField(auto_now_add=True)
 
     def check_state(self) -> any:
         result = AsyncResult(id=self.job_id)
@@ -138,3 +142,9 @@ class GeneratorTask(models.Model):
             if state not in GeneratorTask.FINISHED_STATES:
                 return True
         return False
+
+    @staticmethod
+    def check_limit():
+        startdate = datetime.now() - timedelta(hours=1)
+        tasks_count = GeneratorTask.objects.filter(created__gte=startdate).count()
+        return tasks_count < GeneratorTask.LIMIT

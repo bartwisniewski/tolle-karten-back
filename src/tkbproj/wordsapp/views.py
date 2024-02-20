@@ -70,6 +70,7 @@ class WordList(ListAPIView):
             and self.level
             and len(queryset) < self.max_words
             and not GeneratorTask.check_similiar_task_runs(topic=self.topic)
+            and GeneratorTask.check_limit()
         ):
             celery_task = generate_words_task.delay(
                 topic=self.topic,
