@@ -33,6 +33,8 @@ class Word(models.Model):
         max_length=3,
         choices=Articles,
         default=Articles.DER,
+        blank=True,
+        null=True,
     )
     image = models.ImageField(upload_to="word_images/")
     level = models.CharField(
@@ -91,7 +93,7 @@ class Result(models.Model):
 
     def calc_rate(self) -> None:
         r = self.results
-        wages = [5, 3, 2, 1, 1]
+        wages = [34, 21, 13, 8, 5, 3, 2, 1]
         normed = [wage / sum(wages) for wage in wages]
         rate = 0.0
         for i in range(5):
