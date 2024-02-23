@@ -50,7 +50,8 @@ class Word(models.Model):
         return self.tags.split(", ")
 
     def __str__(self):
-        return f"{self.get_article_display()} {self.word}"
+        article = self.get_article_display() + " " if self.article else ""
+        return f"{article}{self.word}"
 
     def __repr__(self):
         return f"<Word id={self.id}, word={self.word} article={self.get_article_display()}>"
