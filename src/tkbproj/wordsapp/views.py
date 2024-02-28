@@ -20,7 +20,7 @@ from .tasks import generate_words_task
 class WordList(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = WordSerializer
-    max_words = 5
+    max_words = 10
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

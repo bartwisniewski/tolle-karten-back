@@ -67,6 +67,12 @@ class Student(models.Model):
     )
     topic = models.CharField(max_length=30, default="podstawy")
 
+    def __str__(self):
+        return f"{self.user} | {self.level} | {self.topic}"
+
+    def __repr__(self):
+        return f"<Student {self.id} user_id={self.user.id}, level={self.level} topic={self.topic}>"
+
 
 def create_student(sender, user, request, **kwargs):
     try:
@@ -91,6 +97,9 @@ class Result(models.Model):
                 fields=["user", "word"], name="one_result_per_word_per_user"
             )
         ]
+
+    def __str__(self):
+        return f"{self.user} - {self.word}, wynik: {self.results} | {self.rate}"
 
     def calc_rate(self) -> None:
         r = self.results
@@ -125,6 +134,9 @@ class GeneratorTask(models.Model):
     job_id = models.CharField(max_length=100)
     status = models.CharField(max_length=10, default=states.PENDING)
     created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.user} wygenerował "{self.topic}", zadanie: {self.job_id}-{self.status}'
 
     def check_state(self) -> any:
         result = AsyncResult(id=self.job_id)

@@ -16,10 +16,16 @@ Application serves as a backend for web/mobile application to learn new german w
 - Save results
 
 </details>
+<details><summary><b>Content generation</b></summary>
+Application automatically generates new words to learn and associated pictures for flashcards.
+It is based on OpenAI API and Celery async tasks
+</details>
 
 ## Tech-stack
 <ul>
 <li>Python</li>
 <li>Django</li>
 <li>Django Rest Framework</li>
+<li>Celery</li>
+<li>Redis</li>
 </ul>
