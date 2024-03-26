@@ -1,8 +1,10 @@
+from random import randint
+
 from celery.result import AsyncResult, states
 from django.db.models import Q
 from rest_framework import status
 from rest_framework.generics import ListAPIView, RetrieveAPIView, RetrieveUpdateAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -91,6 +93,19 @@ class WordList(ListAPIView):
         task_id = self.task.id if self.task else None
         response.data = {"words": response.data, "task": task_id}
         return response
+
+
+class DemoList(ListAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = WordSerializer
+    max_words = 10
+
+    def get_queryset(self):
+        words = Word.objects.all().order_by("?")
+        count = words.count()
+        random_word = words[randint(0, count)]
+        random_tag = random_word.tags.split(", ")[0]
+        return Word.objects.filter(tags__icontains=random_tag)[: self.max_words]
 
 
 class ResultsList(ListAPIView):

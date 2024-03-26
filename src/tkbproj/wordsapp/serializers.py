@@ -32,8 +32,10 @@ class ResultSerializer(serializers.ModelSerializer):
         model = Result
         fields = "__all__"
 
-    def get_word_word(self, obj):
-        return f"{obj.word.get_article_display()} {obj.word.word}"
+    @staticmethod
+    def get_word_word(obj):
+        article = obj.word.get_article_display() + " " if obj.word.article else ""
+        return f"{article}{obj.word.word}"
 
 
 class SetResultSerializer(serializers.Serializer):

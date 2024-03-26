@@ -30,8 +30,6 @@ services:
       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
     depends_on:
-        worker:
-          condition: service_started
         redis:
           condition: service_started
         db:
@@ -65,10 +63,8 @@ services:
       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
     command: ['celery', '-A', 'tkbproj.celery', 'worker', '-l', 'info', '--concurrency', '2']
     depends_on:
-      redis:
+      app:
         condition: service_started
-      db:
-        condition: service_healthy
     networks:
       - network_back
       - network_front
